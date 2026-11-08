@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - name: Install (clean, from lockfile)
+        run: npm ci
+      - name: Typecheck + production build
+        run: npm run build
+      - name: Tests
+        run: npm test
+      - name: Verify build output
+        run: |
+          test -f dist/index.html
+          test -s dist/index.html
+          grep -q 'id="root"' dist/index.html
+          test -d dist/assets
